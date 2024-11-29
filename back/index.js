@@ -37,21 +37,19 @@ const languageData = {
 };
 
 app.get('/generate-books', (req, res) => {
-  const { language = 'en', seed = Date.now(), likes = 10, reviews = 5, page = 1, startIndex = 1 } = req.query;
-
-  console.log('Request received with params:', { language, seed, likes, reviews, page, startIndex });
-
-  const data = languageData[language] || languageData['en']; // Default to English if language is not found
-  const books = generateBooks(seed, page, likes, reviews, data, parseInt(startIndex));
-  res.json({ books });
-});
-
-app.get('/generate-books', (req, res) => {
   const { language = 'en', seed = Date.now(), likes = 10, reviews = 5, page = 1 } = req.query;
+
+  console.log('Request received with params:', { language, seed, likes, reviews, page });
 
   const data = languageData[language] || languageData['en']; // Default to English if language is not found
   const books = generateBooks(seed, page, likes, reviews, data);
-  res.json({ books });
+
+  // Filter books based on likes and reviews before returning them
+  const filteredBooks = books.filter(
+    (book) => book.likes >= likes && book.reviews.length >= parseInt(reviews)
+  );
+
+  res.json({ books: filteredBooks });
 });
 
 function generateBooks(seed, page, likes, reviews, data) {
@@ -60,10 +58,9 @@ function generateBooks(seed, page, likes, reviews, data) {
 
   const { authors, publishers, titles, language: bookLanguage, reviews: reviewTexts } = data;
 
-  const booksPerRequest = 20;
-
-  for (let i = 0; i < booksPerRequest; i++) {
+  for (let i = 0; i < 20; i++) {
     const book = {
+
       isbn: generateISBN(rng),
       title: titles[Math.floor(rng() * titles.length)] || `Book ${i + 1}`,
       authors: authors[Math.floor(rng() * authors.length)] || `Author ${i + 1}`,
@@ -73,13 +70,12 @@ function generateBooks(seed, page, likes, reviews, data) {
       reviews: reviewTexts[Math.floor(rng() * reviewTexts.length)] || `Review ${i + 1}`,
       description: {
         title: titles[Math.floor(rng() * titles.length)] || `Generated Book ${i + 1}`,
-        publisher: publishers[Math.floor(rng() * publishers.length)] || `Publisher ${i + 1}`,
-        author: authors[Math.floor(rng() * authors.length)] || `Generated Author ${i + 1}`,
-        publicist: publishers[Math.floor(rng() * publishers.length)] || `Generated Publicist`,
-        publicationDate: new Date().toISOString().slice(0, 10),
-      },
+        publisher: publishers[Math.floor(rng() * publishers.length)] || 'Unknown Publisher',
+        author: authors[Math.floor(rng() * authors.length)] || 'Unknown Author',
+        publicist: 'Publicist Name',
+        publicationDate: `202${Math.floor(rng() * 10)}-01-01`
+      }
     };
-
     books.push(book);
   }
 
@@ -87,9 +83,9 @@ function generateBooks(seed, page, likes, reviews, data) {
 }
 
 function generateISBN(rng) {
-  return `${Math.floor(rng() * 1000)}-${Math.floor(rng() * 100)}-${Math.floor(rng() * 100000)}-${Math.floor(rng() * 1000)}-${Math.floor(rng() * 100)}`;
+  return `978-3-${Math.floor(rng() * 1000000000)}`;
 }
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

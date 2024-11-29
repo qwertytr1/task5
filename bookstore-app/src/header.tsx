@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Likes Slider */}
       <div className="form-container">
-        <FloatingLabel controlId="floatingLikes" label="Average Likes" className="mb-2" />
+        <FloatingLabel controlId="floatingLikes" label="Likes" className="mb-2" />
         <Form.Control
           type="range"
           min="0"
@@ -76,11 +76,11 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Reviews Input */}
       <div className="form-container">
-        <FloatingLabel controlId="floatingReviews" label="Average Reviews" className="mb-2" />
+        <FloatingLabel controlId="floatingReviews" label="Reviews" className="mb-2" />
         <Form.Control
           type="number"
           min="0"
-          max="10"
+          max="5"
           step="0.1"
           value={reviews}
           onChange={(e) => setReviews(parseFloat(e.target.value))}
