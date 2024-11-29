@@ -5,7 +5,6 @@ const seedrandom = require('seedrandom');
 const cors = require('cors');
 app.use(cors());
 
-// Данные для разных языков
 const languageData = {
   en: {
     authors: ['John Doe', 'Jane Smith', 'James Brown', 'Mary Johnson', 'Robert White', 'Alice Green',
@@ -41,13 +40,19 @@ app.get('/generate-books', (req, res) => {
 
   console.log('Request received with params:', { language, seed, likes, reviews, page });
 
-  const data = languageData[language] || languageData['en']; // Default to English if language is not found
-  const books = generateBooks(seed, page, likes, reviews, data);
+  const data = languageData[language] || languageData['en'];
 
-  // Filter books based on likes and reviews before returning them
+  const minLikes = parseFloat(likes);
+  const minReviews = parseInt(reviews, 10);
+
+
+  const books = generateBooks(seed, page, minLikes, minReviews, data);
+
+
   const filteredBooks = books.filter(
-    (book) => book.likes >= likes && book.reviews.length >= parseInt(reviews)
+    (book) => book.likes >= minLikes && book.reviews >= minReviews
   );
+
 
   res.json({ books: filteredBooks });
 });
@@ -56,18 +61,17 @@ function generateBooks(seed, page, likes, reviews, data) {
   const rng = seedrandom(seed);
   const books = [];
 
-  const { authors, publishers, titles, language: bookLanguage, reviews: reviewTexts } = data;
+  const { authors, publishers, titles, language: bookLanguage } = data;
 
   for (let i = 0; i < 20; i++) {
     const book = {
-
       isbn: generateISBN(rng),
       title: titles[Math.floor(rng() * titles.length)] || `Book ${i + 1}`,
       authors: authors[Math.floor(rng() * authors.length)] || `Author ${i + 1}`,
       publisher: publishers[Math.floor(rng() * publishers.length)] || `Publisher ${i + 1}`,
       language: bookLanguage,
       likes: Math.round(rng() * likes * 100) / 10,
-      reviews: reviewTexts[Math.floor(rng() * reviewTexts.length)] || `Review ${i + 1}`,
+      reviews: Math.round(rng() * 5 * 10) / 10,
       description: {
         title: titles[Math.floor(rng() * titles.length)] || `Generated Book ${i + 1}`,
         publisher: publishers[Math.floor(rng() * publishers.length)] || 'Unknown Publisher',
@@ -79,9 +83,10 @@ function generateBooks(seed, page, likes, reviews, data) {
     books.push(book);
   }
 
+  console.log("Generated books:", books);
+
   return books;
 }
-
 function generateISBN(rng) {
   return `978-3-${Math.floor(rng() * 1000000000)}`;
 }

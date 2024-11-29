@@ -35,14 +35,16 @@ const App: React.FC = () => {
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
 
   const fetchBooks = async () => {
-    if (loading) return; // Prevent simultaneous requests
+    if (loading) return;
     setLoading(true);
     try {
+      console.log('Fetching books with params:', { language, seed, region, likes, reviews, page });
       const response = await axios.get('http://localhost:5050/generate-books', {
-        params: { language, seed, region, likes, reviews, page }, // Pass likes and reviews in the request
+        params: { language, seed, region, likes, reviews, page },
       });
+      console.log('Response data:', response.data);
       const uniqueBooks = removeDuplicatesAndRenumber(response.data.books);
-      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Append books to the list
+      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]);
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -62,11 +64,11 @@ const App: React.FC = () => {
     return uniqueBooks;
   };
 
-  // Fetch books whenever region, language, or seed changes
+
   useEffect(() => {
-    setBooks([]); // Reset the books when filters change
-    setPage(1); // Start from the first page
-    fetchBooks(); // Fetch new books
+    setBooks([]);
+    setPage(1);
+    fetchBooks();
   }, [language, region, seed, likes, reviews]);
 
   useEffect(() => {
@@ -77,15 +79,18 @@ const App: React.FC = () => {
     const target = event.target as HTMLDivElement;
 
     if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10 && !loading) {
-      setPage((prevPage) => prevPage + 1); // Increment page when scrolled to bottom
+      setPage((prevPage) => prevPage + 1);
     }
   };
  console.log(books)
 const filteredBooks = useMemo(() => {
-  return books.filter((book) => book.likes >= likes);
-}, [books, likes]);
-  console.log('Filtering books with likes >=', likes);
-  console.log('Filtered books:', filteredBooks);
+  return books.filter((book) =>
+    Number(book.likes) >= likes && Number(book.reviews) >= reviews
+  );
+}, [books, likes, reviews]);
+
+console.log('Filtering books with likes >=', likes, 'and reviews >=', reviews);
+console.log('Filtered books:', filteredBooks);
   return (
     <Container className="app-container">
       <h1 className="app-title">Bookstore Random Data Generator</h1>
