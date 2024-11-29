@@ -1,0 +1,120 @@
+/* General Styles */
+body {
+    background-color: #f5faff; /* Светлый фон */
+    color: #003366; /* Основной цвет текста */
+    font-family: 'Arial', sans-serif; /* Основной шрифт */
+  }
+
+  .app-container {
+    margin-top: 20px; /* Отступ сверху */
+  }
+
+  .app-title {
+    text-align: center;
+    color: #003366;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+  }
+
+  /* Header Styles */
+  .header-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #e3f2fd; /* Светло-голубой фон */
+    border: 1px solid #007acc; /* Синяя граница */
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+  }
+
+  .header-item {
+    flex: 0 1 calc(25% - 20px); /* 25% ширины с отступом */
+    min-width: 200px; /* Минимальная ширина */
+  }
+
+  .header-item form-group {
+    width: 100%;
+  }
+
+  .header-item .form-label {
+    font-weight: bold;
+    color: #003366; /* Тёмно-синий */
+  }
+
+  /* Адаптивность для Header */
+  @media (max-width: 992px) {
+    .header-item {
+      flex: 0 1 calc(50% - 20px); /* 50% ширины */
+    }
+  }
+
+  @media (max-width: 576px) {
+    .header-item {
+      flex: 0 1 100%; /* Полная ширина */
+    }
+  }
+
+  /* Form Styles */
+  .form-section {
+    display: flex;
+    flex-wrap: wrap; /* Перенос строк */
+    gap: 24px; /* Расстояние между блоками */
+    justify-content: space-between; /* Равномерное распределение */
+  }
+
+  /* Общий стиль блока формы */
+  .form-container {
+    background-color: #ffffff; /* Белый фон */
+    border: 1px solid #dee2e6; /* Светло-серая граница */
+    border-radius: 8px; /* Скруглённые углы */
+    padding: 16px; /* Внутренний отступ */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+    display: flex;
+    flex-direction: column; /* Элементы вертикально */
+    gap: 8px; /* Расстояние между FloatingLabel и содержимым */
+    flex: 1 1 calc(25% - 24px); /* 25% ширины блока */
+    min-width: 220px; /* Минимальная ширина */
+  }
+
+  /* Кнопки */
+  button {
+    font-weight: bold;
+    color: #ffffff; /* Белый текст */
+    background-color: #007acc; /* Синий фон */
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #005fa3; /* Тёмно-синий */
+  }
+
+  .form-container .btn {
+    padding: 8px 12px; /* Увеличенные отступы */
+    font-size: 0.875rem; /* Уменьшенный текст */
+  }
+
+  /* Бегунок */
+  .form-container .form-range {
+    accent-color: #61dafb; /* Голубой бегунок */
+  }
+
+  .small.text-muted {
+    font-size: 0.85rem;
+    color: #6c757d; /* Тёмно-серый текст */
+  }
+
+  /* Input Sizes */
+  .form-select-sm,
+  .form-control-sm {
+    font-size: 0.875rem;
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 0.5rem;
+  }

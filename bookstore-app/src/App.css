@@ -1,0 +1,113 @@
+.table-wrapper {
+  height: 100vh; /* Занимает всю высоту экрана */
+  width: 100%;  /* Занимает всю ширину */
+  overflow-y: auto; /* Включаем вертикальную прокрутку */
+  border: 1px solid #dee2e6; /* Граница вокруг таблицы */
+  border-radius: 8px; /* Скруглённые углы */
+  background-color: #ffffff; /* Белый фон */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
+  padding: 15px; /* Внутренний отступ */
+  margin: 20px 0; /* Отступы сверху и снизу */
+  display: flex;
+  flex-direction: column; /* Для адаптивного размещения элементов */
+}
+.table-wrapper {
+  max-height: 500px;
+  overflow-y: auto;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+}
+
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+/* Стили для таблицы */
+.table {
+  width: 100%; /* Растягиваем таблицу на всю ширину контейнера */
+  margin: 0; /* Убираем внешние отступы */
+  border-collapse: collapse; /* Убираем промежуточные границы между ячейками */
+}
+
+/* Заголовки таблицы */
+.table thead th {
+  background-color: #003366; /* Тёмно-синий фон заголовков */
+  color: #ffffff; /* Белый текст */
+  font-weight: bold;
+  text-align: center;
+  padding: 12px; /* Увеличиваем отступы */
+  border: none;
+}
+
+/* Строки таблицы */
+.table tbody tr {
+  background-color: #f8f9fa; /* Светлый фон для чётных строк */
+  transition: background-color 0.3s ease; /* Анимация для наведения */
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #e9ecef; /* Более светлый фон для чётных строк */
+}
+
+.table tbody tr:hover {
+  background-color: #d9edf7; /* Подсветка строки при наведении */
+  cursor: pointer; /* Указатель мыши меняется на "руку" */
+}
+
+/* Ячейки таблицы */
+.table td {
+  padding: 12px; /* Увеличиваем отступы */
+  text-align: center;
+  border-bottom: 1px solid #dee2e6; /* Границы ячеек */
+  font-size: 14px;
+}
+.SecondElement{
+  font-weight: 700;
+}
+
+/* Адаптивная таблица */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px; /* Ширина полосы прокрутки */
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background-color: #007bff; /* Цвет полосы прокрутки */
+  border-radius: 4px; /* Скруглённые края */
+}
+
+/* Центрирование спиннера */
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8); /* Полупрозрачный фон */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Сделать таблицу адаптивной */
+@media (max-width: 992px) {
+  .table-wrapper {
+    max-width: 100%;
+    margin: 20px; /* Отступы для мобильных устройств */
+  }
+}
+
+@media (max-width: 576px) {
+  .table-wrapper {
+    padding: 10px;
+    margin: 10px 0;
+  }
+}
+
+/* Чтобы таблица занимала всю страницу */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
