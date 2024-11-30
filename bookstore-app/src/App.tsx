@@ -29,23 +29,24 @@ const App: React.FC = () => {
   const [seed, setSeed] = useState<string>('42');
   const [likes, setLikes] = useState<number>(0); // State for likes filter
   const [reviews, setReviews] = useState<number>(0); // State for reviews filter
-  const [books, setBooks] = useState<Book[]>([]);
+  const [books, setBooks] = useState<Book[]>([]); // State for all books
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState<number>(1); // Current page
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
 
   // Fetch books from the server
   const fetchBooks = async () => {
-    if (loading) return;
+    if (loading) return; // Prevent multiple API calls
     setLoading(true);
     try {
       const response = await axios.get('https://task5-serv.vercel.app/generate-books', {
         params: { language, seed, region, page },
       });
 
+      // Combine the new books with the existing ones
       const newBooks = removeDuplicates([...books, ...response.data.books]);
 
-      setBooks(newBooks);
+      setBooks(newBooks); // Add new books to the state
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -67,11 +68,11 @@ const App: React.FC = () => {
 
   // Reset state when filters or seed change
   useEffect(() => {
-    setBooks([]);
-    setPage(1); // Reset page to start fetching from the beginning
+    setBooks([]); // Clear the books when changing language, seed, or region
+    setPage(1); // Reset to first page
   }, [seed, language, region]);
 
-  // Fetch books on page change or initial load
+  // Fetch books when the page changes or initial load
   useEffect(() => {
     fetchBooks();
   }, [page]);
@@ -80,7 +81,7 @@ const App: React.FC = () => {
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
     if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10 && !loading) {
-      setPage((prevPage) => prevPage + 1);
+      setPage((prevPage) => prevPage + 1); // Increment the page number when scrolling to the bottom
     }
   };
 
