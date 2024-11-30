@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
   const [originalBooks, setOriginalBooks] = useState<Book[]>([]);
 
+  // Fetch books from the server
   const fetchBooks = async () => {
     if (loading) return;
     setLoading(true);
@@ -42,10 +43,12 @@ const App: React.FC = () => {
       const response = await axios.get('https://task5-serv.vercel.app/generate-books', {
         params: { language, seed, region, page },
       });
-      const uniqueBooks = removeDuplicatesAndRenumber(response.data.books);
+      const newBooks = removeDuplicatesAndRenumber(response.data.books);
 
-      setOriginalBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Save original data
-      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Add to current books
+      // Ensure uniqueness across pages
+      setOriginalBooks((prevBooks) =>
+        removeDuplicatesAndRenumber([...prevBooks, ...newBooks])
+      );
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -53,16 +56,16 @@ const App: React.FC = () => {
     }
   };
 
+  // Utility to remove duplicates based on ISBN
   const removeDuplicatesAndRenumber = (books: Book[]): Book[] => {
     const seenIsbns = new Set();
-    const uniqueBooks: Book[] = [];
-    books.forEach((book) => {
-      if (!seenIsbns.has(book.isbn)) {
-        seenIsbns.add(book.isbn);
-        uniqueBooks.push(book);
+    return books.filter((book) => {
+      if (seenIsbns.has(book.isbn)) {
+        return false;
       }
+      seenIsbns.add(book.isbn);
+      return true;
     });
-    return uniqueBooks;
   };
 
   useEffect(() => {
@@ -70,13 +73,13 @@ const App: React.FC = () => {
     setOriginalBooks([]);
     fetchBooks();
     setPage(1);
-  }, [seed, language, region, likes, reviews]);
+  }, [seed, language, region]);
 
   useEffect(() => {
     fetchBooks();
-  }, [page, language, region, seed, likes, reviews]);
+  }, [page, language, region, seed]);
 
-
+  // Handle infinite scroll
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
     if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10 && !loading) {
@@ -84,11 +87,11 @@ const App: React.FC = () => {
     }
   };
 
-   const filteredBooks = useMemo(() => {
+  // Apply filters to the books
+  const filteredBooks = useMemo(() => {
     if (likes === 0 && reviews === 0) {
       return originalBooks;
     }
-
     return originalBooks.filter(
       (book) =>
         (likes === 0 || Number(book.likes) >= likes) &&
@@ -125,7 +128,7 @@ const App: React.FC = () => {
               </thead>
               <tbody>
                 {filteredBooks.map((book, i) => (
-                  <React.Fragment key={i + 1}>
+                  <React.Fragment key={book.isbn}>
                     <tr>
                       <td>
                         <Button
