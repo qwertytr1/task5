@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Row, Table, Spinner, Col, Button, Form } from 'react-bootstrap';
+import { Container, Row, Table, Spinner, Col, Button } from 'react-bootstrap';
 import axios from 'axios';
 import './App.css';
 import Header from './header';
@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
   const [originalBooks, setOriginalBooks] = useState<Book[]>([]);
 
+  // Fetch books from the server
   const fetchBooks = async () => {
     if (loading) return;
     setLoading(true);
@@ -44,8 +45,8 @@ const App: React.FC = () => {
       });
       const uniqueBooks = removeDuplicatesAndRenumber(response.data.books);
 
-      setOriginalBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Сохраняем оригинальные данные
-      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Добавляем к текущим книгам
+      setOriginalBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Save original data
+      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Add to current books
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -53,6 +54,7 @@ const App: React.FC = () => {
     }
   };
 
+  // Remove duplicates from the books list
   const removeDuplicatesAndRenumber = (books: Book[]): Book[] => {
     const seenIsbns = new Set();
     const uniqueBooks: Book[] = [];
@@ -65,10 +67,17 @@ const App: React.FC = () => {
     return uniqueBooks;
   };
 
+  useEffect(() => {
+    setBooks([]); // Clear current books
+    setOriginalBooks([]); // Clear original books to force a fresh fetch
+    fetchBooks();
+    setPage(1); // Reset page to 1
+  }, [seed, language, region, likes, reviews]); // Dependencies changed
+
   // Fetch books when page or filters change
   useEffect(() => {
     fetchBooks();
-  }, [language, region, seed, likes, reviews, page]);
+  }, [page, language, region, seed, likes, reviews]); // Trigger on page or filter change
 
   // Handle infinite scroll
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
@@ -78,10 +87,16 @@ const App: React.FC = () => {
     }
   };
 
-  // Filter books based on likes and reviews
+  // Filter books based on likes and reviews only if either is non-zero
   const filteredBooks = useMemo(() => {
+    if (likes === 0 && reviews === 0) {
+      return originalBooks; // No filters applied, show all books
+    }
+
     return originalBooks.filter(
-      (book) => Number(book.likes) >= likes && Number(book.reviews) >= reviews
+      (book) =>
+        (likes === 0 || Number(book.likes) >= likes) &&
+        (reviews === 0 || Number(book.reviews) >= reviews)
     );
   }, [originalBooks, likes, reviews]);
 
