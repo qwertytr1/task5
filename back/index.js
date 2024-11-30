@@ -4,7 +4,6 @@ const cors = require('cors');
 
 const app = express();
 require('dotenv').config();
-// Разрешить CORS для любых источников (или укажите ваш домен)
 app.use(cors());
 
 const languageData = {
@@ -38,12 +37,16 @@ const languageData = {
 };
 
 app.get('/generate-books', (req, res) => {
-  const { language = 'en', seed = Date.now(), page = 1 } = req.query;
-
+  const { language = 'en', seed = Date.now(), page = 1, likes = 0, reviews = 0 } = req.query;
+  console.log(`Params: language=${language}, seed=${seed}, page=${page}, likes=${likes}, reviews=${reviews}`);
   const data = languageData[language] || languageData['en'];
   const books = generateBooks(seed, page, data);
 
-  res.json({ books });
+  const filteredBooks = books.filter(
+    (book) => book.likes >= likes && book.reviews >= reviews
+  );
+
+  res.json({ books: filteredBooks });
 });
 
 function generateBooks(seed, page, data) {
@@ -61,8 +64,8 @@ function generateBooks(seed, page, data) {
       authors: author,
       publisher,
       language: bookLanguage,
-      likes: Math.round(rng() * 10 * 10) / 10, // Лайки от 0 до 10 с дробными
-      reviews: Math.round(rng() * 5 * 10) / 10, // Отзывы от 0 до 10 с дробными
+      likes: Math.round(rng() * 10 * 10) / 10,
+      reviews: Math.round(rng() * 5 * 10) / 10,
       description: {
         title,
         publisher,
