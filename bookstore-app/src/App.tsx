@@ -40,7 +40,7 @@ const App: React.FC = () => {
     if (loading) return;
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5050/generate-books', {
+      const response = await axios.get('https://task5-serv.vercel.app/generate-books', {
         params: { language, seed, region, page },
       });
       const uniqueBooks = removeDuplicatesAndRenumber(response.data.books);
