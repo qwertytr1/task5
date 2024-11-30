@@ -88,3 +88,4 @@ if (process.env.NODE_ENV !== 'production') {
         console.log(`Server running at http://localhost:${port}`);
     });
 }
+module.exports = app;
