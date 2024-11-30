@@ -3,7 +3,10 @@ const app = express();
 const port = 5050;
 const seedrandom = require('seedrandom');
 const cors = require('cors');
-app.use(cors());
+app.use(cors({origin: "https://task5-serv.vercel.app"}));
+
+
+
 
 const languageData = {
   en: {
