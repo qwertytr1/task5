@@ -3,7 +3,7 @@ const seedrandom = require('seedrandom');
 const cors = require('cors');
 
 const app = express();
-
+require('dotenv').config();
 // Разрешить CORS для любых источников (или укажите ваш домен)
 app.use(cors());
 
@@ -81,5 +81,10 @@ function generateISBN(rng) {
   return `978-3-${Math.floor(rng() * 1000000000)}`;
 }
 
-// Экспорт приложения вместо app.listen
-module.exports = app;
+const port = process.env.PORT || 3000;
+
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+}
