@@ -29,21 +29,23 @@ const App: React.FC = () => {
   const [seed, setSeed] = useState<string>('42');
   const [likes, setLikes] = useState<number>(0); // State for likes filter
   const [reviews, setReviews] = useState<number>(0); // State for reviews filter
-  const [books, setBooks] = useState<Book[]>([]); // State for all books
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1); // Current page
+  const [page, setPage] = useState<number>(1);
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
+  const [originalBooks, setOriginalBooks] = useState<Book[]>([]);
 
-  // Fetch books from the server (used for infinite scroll)
   const fetchBooks = async () => {
-    if (loading) return; // Prevent multiple API calls
+    if (loading) return;
     setLoading(true);
     try {
-      const response = await axios.get('https://task5-serv.vercel.app/api/generate-books', {
+      const response = await axios.get('https://task5-serv.vercel.app/generate-books', {
         params: { language, seed, region, page },
       });
+      const uniqueBooks = removeDuplicatesAndRenumber(response.data.books);
 
-      setBooks((prevBooks) => removeDuplicates([...prevBooks, ...response.data.books])); // Merge and remove duplicates
+      setOriginalBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Save original data
+      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Add to current books
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -51,26 +53,28 @@ const App: React.FC = () => {
     }
   };
 
-  const removeDuplicates = (books: Book[]): Book[] => {
+  const removeDuplicatesAndRenumber = (books: Book[]): Book[] => {
     const seenIsbns = new Set();
-    return books.filter((book) => {
-      if (seenIsbns.has(book.isbn)) {
-        return false;
+    const uniqueBooks: Book[] = [];
+    books.forEach((book) => {
+      if (!seenIsbns.has(book.isbn)) {
+        seenIsbns.add(book.isbn);
+        uniqueBooks.push(book);
       }
-      seenIsbns.add(book.isbn);
-      return true;
     });
+    return uniqueBooks;
   };
-
 
   useEffect(() => {
     setBooks([]);
+    setOriginalBooks([]);
+    fetchBooks();
     setPage(1);
   }, [seed, language, region, likes, reviews]);
 
   useEffect(() => {
     fetchBooks();
-  }, [page]);
+  }, [page, language, region, seed, likes, reviews]);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
@@ -79,17 +83,17 @@ const App: React.FC = () => {
     }
   };
 
-
   const filteredBooks = useMemo(() => {
     if (likes === 0 && reviews === 0) {
-      return books;
+      return originalBooks;
     }
-    return books.filter(
+
+    return originalBooks.filter(
       (book) =>
         (likes === 0 || Number(book.likes) >= likes) &&
         (reviews === 0 || Number(book.reviews) >= reviews)
     );
-  }, [books, likes, reviews]);
+  }, [originalBooks, likes, reviews]);
 
   return (
     <Container className="app-container">
@@ -120,7 +124,7 @@ const App: React.FC = () => {
               </thead>
               <tbody>
                 {filteredBooks.map((book, i) => (
-                  <React.Fragment key={book.isbn}>
+                  <React.Fragment key={i + 1}>
                     <tr>
                       <td>
                         <Button
