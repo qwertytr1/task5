@@ -33,7 +33,6 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
-  const [originalBooks, setOriginalBooks] = useState<Book[]>([]);
 
   // Fetch books from the server
   const fetchBooks = async () => {
@@ -43,12 +42,10 @@ const App: React.FC = () => {
       const response = await axios.get('https://task5-serv.vercel.app/generate-books', {
         params: { language, seed, region, page },
       });
-      const newBooks = removeDuplicatesAndRenumber(response.data.books);
 
-      // Ensure uniqueness across pages
-      setOriginalBooks((prevBooks) =>
-        removeDuplicatesAndRenumber([...prevBooks, ...newBooks])
-      );
+      const newBooks = removeDuplicates([...books, ...response.data.books]);
+
+      setBooks(newBooks);
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -57,7 +54,7 @@ const App: React.FC = () => {
   };
 
   // Utility to remove duplicates based on ISBN
-  const removeDuplicatesAndRenumber = (books: Book[]): Book[] => {
+  const removeDuplicates = (books: Book[]): Book[] => {
     const seenIsbns = new Set();
     return books.filter((book) => {
       if (seenIsbns.has(book.isbn)) {
@@ -68,16 +65,16 @@ const App: React.FC = () => {
     });
   };
 
+  // Reset state when filters or seed change
   useEffect(() => {
     setBooks([]);
-    setOriginalBooks([]);
-    fetchBooks();
-    setPage(1);
+    setPage(1); // Reset page to start fetching from the beginning
   }, [seed, language, region]);
 
+  // Fetch books on page change or initial load
   useEffect(() => {
     fetchBooks();
-  }, [page, language, region, seed]);
+  }, [page]);
 
   // Handle infinite scroll
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
@@ -90,14 +87,14 @@ const App: React.FC = () => {
   // Apply filters to the books
   const filteredBooks = useMemo(() => {
     if (likes === 0 && reviews === 0) {
-      return originalBooks;
+      return books;
     }
-    return originalBooks.filter(
+    return books.filter(
       (book) =>
         (likes === 0 || Number(book.likes) >= likes) &&
         (reviews === 0 || Number(book.reviews) >= reviews)
     );
-  }, [originalBooks, likes, reviews]);
+  }, [books, likes, reviews]);
 
   return (
     <Container className="app-container">
