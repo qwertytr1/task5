@@ -5,9 +5,6 @@ const seedrandom = require('seedrandom');
 const cors = require('cors');
 app.use(cors({origin: "https://task5-serv.vercel.app"}));
 
-
-
-
 const languageData = {
   en: {
     authors: ['John Doe', 'Jane Smith', 'James Brown', 'Mary Johnson', 'Robert White', 'Alice Green',
