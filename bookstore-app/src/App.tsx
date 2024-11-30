@@ -34,19 +34,16 @@ const App: React.FC = () => {
   const [page, setPage] = useState<number>(1); // Current page
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
 
-  // Fetch books from the server
+  // Fetch books from the server (used for infinite scroll)
   const fetchBooks = async () => {
     if (loading) return; // Prevent multiple API calls
     setLoading(true);
     try {
-      const response = await axios.get('https://task5-serv.vercel.app/generate-books', {
+      const response = await axios.get('https://task5-serv.vercel.app/api/generate-books', {
         params: { language, seed, region, page },
       });
 
-      // Combine the new books with the existing ones
-      const newBooks = removeDuplicates([...books, ...response.data.books]);
-
-      setBooks(newBooks); // Add new books to the state
+      setBooks((prevBooks) => removeDuplicates([...prevBooks, ...response.data.books])); // Merge and remove duplicates
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -54,7 +51,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Utility to remove duplicates based on ISBN
   const removeDuplicates = (books: Book[]): Book[] => {
     const seenIsbns = new Set();
     return books.filter((book) => {
@@ -66,26 +62,24 @@ const App: React.FC = () => {
     });
   };
 
-  // Reset state when filters or seed change
-  useEffect(() => {
-    setBooks([]); // Clear the books when changing language, seed, or region
-    setPage(1); // Reset to first page
-  }, [seed, language, region]);
 
-  // Fetch books when the page changes or initial load
+  useEffect(() => {
+    setBooks([]);
+    setPage(1);
+  }, [seed, language, region, likes, reviews]);
+
   useEffect(() => {
     fetchBooks();
   }, [page]);
 
-  // Handle infinite scroll
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
     if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10 && !loading) {
-      setPage((prevPage) => prevPage + 1); // Increment the page number when scrolling to the bottom
+      setPage((prevPage) => prevPage + 1);
     }
   };
 
-  // Apply filters to the books
+
   const filteredBooks = useMemo(() => {
     if (likes === 0 && reviews === 0) {
       return books;
