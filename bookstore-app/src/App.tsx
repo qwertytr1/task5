@@ -84,27 +84,15 @@ const App: React.FC = () => {
   };
 
   const filteredBooks = useMemo(() => {
-    let filtered = originalBooks;
-
-    if (likes > 0 || reviews > 0) {
-      filtered = filtered.filter(
-        (book) =>
-          (likes === 0 || Number(book.likes) >= likes) &&
-          (reviews === 0 || Number(book.reviews) >= reviews)
-      );
+    if (likes === 0 && reviews === 0) {
+      return originalBooks;
     }
 
-    // Remove duplicates after filtering
-    const seenIsbns = new Set();
-    const uniqueFilteredBooks = filtered.filter((book) => {
-      if (seenIsbns.has(book.isbn)) {
-        return false;
-      }
-      seenIsbns.add(book.isbn);
-      return true;
-    });
-
-    return uniqueFilteredBooks;
+    return originalBooks.filter(
+      (book) =>
+        (likes === 0 || Number(book.likes) >= likes) &&
+        (reviews === 0 || Number(book.reviews) >= reviews)
+    );
   }, [originalBooks, likes, reviews]);
 
   return (
