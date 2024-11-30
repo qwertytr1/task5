@@ -1,9 +1,11 @@
 const express = require('express');
-const app = express();
-const port = 5050;
 const seedrandom = require('seedrandom');
 const cors = require('cors');
-app.use(cors({origin: "https://task5-serv.vercel.app"}));
+
+const app = express();
+
+// Разрешить CORS для любых источников (или укажите ваш домен)
+app.use(cors());
 
 const languageData = {
   en: {
@@ -44,8 +46,6 @@ app.get('/generate-books', (req, res) => {
   res.json({ books });
 });
 
-
-
 function generateBooks(seed, page, data) {
   const rng = seedrandom(seed);
   const books = [];
@@ -81,6 +81,5 @@ function generateISBN(rng) {
   return `978-3-${Math.floor(rng() * 1000000000)}`;
 }
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+// Экспорт приложения вместо app.listen
+module.exports = app;
