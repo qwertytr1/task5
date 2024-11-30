@@ -33,18 +33,19 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [expandedBook, setExpandedBook] = useState<number | null>(null);
+  const [originalBooks, setOriginalBooks] = useState<Book[]>([]);
 
   const fetchBooks = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      console.log('Fetching books with params:', { language, seed, region, likes, reviews, page });
       const response = await axios.get('http://localhost:5050/generate-books', {
-        params: { language, seed, region, likes, reviews, page },
+        params: { language, seed, region, page },
       });
-      console.log('Response data:', response.data);
       const uniqueBooks = removeDuplicatesAndRenumber(response.data.books);
-      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]);
+
+      setOriginalBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Сохраняем оригинальные данные
+      setBooks((prevBooks) => [...prevBooks, ...uniqueBooks]); // Добавляем к текущим книгам
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -64,33 +65,26 @@ const App: React.FC = () => {
     return uniqueBooks;
   };
 
-
-  useEffect(() => {
-    setBooks([]);
-    setPage(1);
-    fetchBooks();
-  }, [language, region, seed, likes, reviews]);
-
+  // Fetch books when page or filters change
   useEffect(() => {
     fetchBooks();
-  }, [page]);
+  }, [language, region, seed, likes, reviews, page]);
 
+  // Handle infinite scroll
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
-
     if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10 && !loading) {
       setPage((prevPage) => prevPage + 1);
     }
   };
- console.log(books)
-const filteredBooks = useMemo(() => {
-  return books.filter((book) =>
-    Number(book.likes) >= likes && Number(book.reviews) >= reviews
-  );
-}, [books, likes, reviews]);
 
-console.log('Filtering books with likes >=', likes, 'and reviews >=', reviews);
-console.log('Filtered books:', filteredBooks);
+  // Filter books based on likes and reviews
+  const filteredBooks = useMemo(() => {
+    return originalBooks.filter(
+      (book) => Number(book.likes) >= likes && Number(book.reviews) >= reviews
+    );
+  }, [originalBooks, likes, reviews]);
+
   return (
     <Container className="app-container">
       <h1 className="app-title">Bookstore Random Data Generator</h1>
@@ -106,7 +100,6 @@ console.log('Filtered books:', filteredBooks);
       />
       <Row>
         <Col md={12}>
-
           <div className="table-wrapper" onScroll={handleScroll}>
             <Table striped bordered hover responsive>
               <thead>
@@ -121,11 +114,16 @@ console.log('Filtered books:', filteredBooks);
               </thead>
               <tbody>
                 {filteredBooks.map((book, i) => (
-                  <React.Fragment key={i}>
+                  <React.Fragment key={i + 1}>
                     <tr>
                       <td>
-                        <Button variant="link" onClick={() => setExpandedBook((prev) => (prev === book.index ? null : book.index))}>
-                          {expandedBook === book.index ? '▲' : '▼'}
+                        <Button
+                          variant="link"
+                          onClick={() =>
+                            setExpandedBook((prev) => (prev === i ? null : i))
+                          }
+                        >
+                          {expandedBook === i ? '▲' : '▼'}
                         </Button>
                       </td>
                       <td>{i + 1}</td>
@@ -134,10 +132,14 @@ console.log('Filtered books:', filteredBooks);
                       <td>{book.authors}</td>
                       <td>{book.publisher}</td>
                     </tr>
-                    {expandedBook === book.index && (
+                    {expandedBook === i && (
                       <tr>
                         <td colSpan={6}>
-                          <BookDescription description={book.description} />
+                          <BookDescription
+                            description={book.description}
+                            likes={book.likes}
+                            reviews={book.reviews}
+                          />
                         </td>
                       </tr>
                     )}

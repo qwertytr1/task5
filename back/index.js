@@ -36,57 +36,47 @@ const languageData = {
 };
 
 app.get('/generate-books', (req, res) => {
-  const { language = 'en', seed = Date.now(), likes = 10, reviews = 5, page = 1 } = req.query;
-
-  console.log('Request received with params:', { language, seed, likes, reviews, page });
+  const { language = 'en', seed = Date.now(), page = 1 } = req.query;
 
   const data = languageData[language] || languageData['en'];
+  const books = generateBooks(seed, page, data);
 
-  const minLikes = parseFloat(likes);
-  const minReviews = parseInt(reviews, 10);
-
-
-  const books = generateBooks(seed, page, minLikes, minReviews, data);
-
-
-  const filteredBooks = books.filter(
-    (book) => book.likes >= minLikes && book.reviews >= minReviews
-  );
-
-
-  res.json({ books: filteredBooks });
+  res.json({ books });
 });
 
-function generateBooks(seed, page, likes, reviews, data) {
+
+
+function generateBooks(seed, page, data) {
   const rng = seedrandom(seed);
   const books = [];
-
   const { authors, publishers, titles, language: bookLanguage } = data;
 
   for (let i = 0; i < 20; i++) {
+    const title = titles[Math.floor(rng() * titles.length)];
+    const author = authors[Math.floor(rng() * authors.length)];
+    const publisher = publishers[Math.floor(rng() * publishers.length)];
     const book = {
       isbn: generateISBN(rng),
-      title: titles[Math.floor(rng() * titles.length)] || `Book ${i + 1}`,
-      authors: authors[Math.floor(rng() * authors.length)] || `Author ${i + 1}`,
-      publisher: publishers[Math.floor(rng() * publishers.length)] || `Publisher ${i + 1}`,
+      title,
+      authors: author,
+      publisher,
       language: bookLanguage,
-      likes: Math.round(rng() * likes * 100) / 10,
-      reviews: Math.round(rng() * 5 * 10) / 10,
+      likes: Math.round(rng() * 10 * 10) / 10, // Лайки от 0 до 10 с дробными
+      reviews: Math.round(rng() * 5 * 10) / 10, // Отзывы от 0 до 10 с дробными
       description: {
-        title: titles[Math.floor(rng() * titles.length)] || `Generated Book ${i + 1}`,
-        publisher: publishers[Math.floor(rng() * publishers.length)] || 'Unknown Publisher',
-        author: authors[Math.floor(rng() * authors.length)] || 'Unknown Author',
+        title,
+        publisher,
+        author,
         publicist: 'Publicist Name',
-        publicationDate: `202${Math.floor(rng() * 10)}-01-01`
-      }
+        publicationDate: `202${Math.floor(rng() * 10)}-01-01`,
+      },
     };
     books.push(book);
   }
 
-  console.log("Generated books:", books);
-
   return books;
 }
+
 function generateISBN(rng) {
   return `978-3-${Math.floor(rng() * 1000000000)}`;
 }

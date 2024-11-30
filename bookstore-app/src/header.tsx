@@ -82,7 +82,7 @@ const Header: React.FC<HeaderProps> = ({
           min="0"
           max="5"
           step="0.1"
-          value={reviews}
+          value={reviews||''}
           onChange={(e) => setReviews(parseFloat(e.target.value))}
           className="form-control-sm"
         />

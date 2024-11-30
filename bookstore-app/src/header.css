@@ -21,10 +21,10 @@ body {
   .header-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 7px;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 5px;
     margin-bottom: 20px;
     background-color: #e3f2fd; /* Светло-голубой фон */
     border: 1px solid #007acc; /* Синяя граница */
